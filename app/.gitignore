@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+service-account.json
+firebase-debug.log
+firestore-debug.log
+.firebase/

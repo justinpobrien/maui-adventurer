@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #fbf3e9; }
+  a { color: #cf6a3d; }
+  a:hover { color: #ad5330; }
+  * { font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box; }
+  .mono { font-family: 'DM Mono', ui-monospace, monospace; }
+  ::-webkit-scrollbar { height: 0; width: 0; }
+  input::placeholder { color: #b3a583; }
+</style>
+</helmet>
+
+<div style="min-height:100vh; display:flex; justify-content:center; padding:40px 16px;">
+<div style="width:100%; max-width:980px;">
+
+  <sc-if value="{{ showLibrary }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <!-- header -->
+      <div style="margin-bottom:22px;">
+        <div style="font-size:12px; font-weight:600; letter-spacing:0.06em; color:#9c8a6a; text-transform:uppercase; margin-bottom:4px;">TripLine · Content Library</div>
+        <div style="font-size:28px; font-weight:800; color:#33291f; letter-spacing:-0.01em; margin-bottom:6px;">Things to do on Maui</div>
+        <div style="font-size:14px; color:#7a6a52; max-width:520px; line-height:1.5;">Structured guides for beaches, adventures, and local spots — written to help you fill the gaps in your itinerary.</div>
+      </div>
+
+      <!-- search -->
+      <div style="position:relative; margin-bottom:16px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="position:absolute; left:14px; top:13px;"><circle cx="11" cy="11" r="7" stroke="#b3a583" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="#b3a583" stroke-width="2" stroke-linecap="round"/></svg>
+        <input value="{{ search }}" onChange="{{ onSearch }}" placeholder="Search articles..." style="width:100%; border:1px solid #ecdec7; background:#fffdf9; border-radius:12px; padding:12px 14px 12px 40px; font-size:14px; color:#33291f; outline:none;"/>
+      </div>
+
+      <!-- category filters -->
+      <div style="display:flex; gap:8px; margin-bottom:26px; overflow-x:auto; padding-bottom:2px;">
+        <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+          <button onClick="{{ cat.select }}" style="flex:none; border:1px solid {{ cat.borderColor }}; background:{{ cat.bg }}; color:{{ cat.color }}; font-size:13px; font-weight:700; padding:9px 15px; border-radius:20px; cursor:pointer;">{{ cat.label }}</button>
+        </sc-for>
+      </div>
+
+      <!-- article grid -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:18px;">
+        <sc-for list="{{ articles }}" as="art" hint-placeholder-count="6">
+          <div onClick="{{ art.open }}" style="background:#fffdf9; border:1px solid #ecdec7; border-radius:16px; overflow:hidden; cursor:pointer; display:flex; flex-direction:column;">
+            <div style="height:140px; background:{{ art.stripeBg }}; display:flex; align-items:center; justify-content:center;">
+              <span class="mono" style="font-size:11px; color:#9c8a6a;">photo</span>
+            </div>
+            <div style="padding:15px 16px 17px; display:flex; flex-direction:column; gap:8px; flex:1;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:10.5px; font-weight:700; color:{{ art.color }}; background:{{ art.bg }}; padding:3px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:0.03em;">{{ art.category }}</span>
+              </div>
+              <div style="font-size:16px; font-weight:700; color:#33291f; line-height:1.3;">{{ art.title }}</div>
+              <div style="font-size:13px; color:#7a6a52; line-height:1.45; flex:1;">{{ art.summary }}</div>
+              <div style="display:flex; align-items:center; justify-content:space-between; font-size:12px; color:#9c8a6a; margin-top:4px;">
+                <span>{{ art.location }}</span>
+                <span class="mono">{{ art.readTime }}</span>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center; padding:60px 20px; color:#9c8a6a; font-size:14px;">No articles match your search.</div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showDetail }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <button onClick="{{ closeArticle }}" style="border:1px solid #ecdec7; background:#fffdf9; color:#6b5a3e; font-size:13px; font-weight:600; padding:8px 14px; border-radius:10px; cursor:pointer; display:flex; align-items:center; gap:6px; margin-bottom:20px;" style-hover="border-color:#cf6a3d; color:#cf6a3d;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to library
+      </button>
+
+      <div style="height:220px; border-radius:18px; background:{{ current.stripeBg }}; display:flex; align-items:center; justify-content:center; margin-bottom:22px;">
+        <span class="mono" style="font-size:12px; color:#9c8a6a;">photo</span>
+      </div>
+
+      <span style="font-size:11px; font-weight:700; color:{{ current.color }}; background:{{ current.bg }}; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.03em;">{{ current.category }}</span>
+      <div style="font-size:30px; font-weight:800; color:#33291f; letter-spacing:-0.01em; margin:12px 0 6px;">{{ current.title }}</div>
+      <div style="display:flex; gap:14px; font-size:13px; color:#9c8a6a; margin-bottom:20px;">
+        <span>{{ current.location }}</span>
+        <span class="mono">{{ current.readTime }} read</span>
+      </div>
+
+      <div style="font-size:16px; color:#4a3f2e; line-height:1.65; max-width:640px; margin-bottom:26px;">{{ current.overview }}</div>
+
+      <div style="max-width:640px; margin-bottom:22px;">
+        <div style="font-size:13px; font-weight:700; color:#33291f; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;">Best time to visit</div>
+        <div style="font-size:14.5px; color:#4a3f2e; line-height:1.6;">{{ current.bestTime }}</div>
+      </div>
+
+      <div style="max-width:640px; margin-bottom:36px;">
+        <div style="font-size:13px; font-weight:700; color:#33291f; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:10px;">Good to know</div>
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ current.tips }}" as="tip" hint-placeholder-count="3">
+            <div style="display:flex; gap:9px; align-items:flex-start; font-size:14px; color:#4a3f2e; line-height:1.5;">
+              <span style="width:6px; height:6px; border-radius:50%; background:#cf6a3d; margin-top:7px; flex:none;"></span>
+              {{ tip }}
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:14px; font-weight:800; color:#33291f; margin-bottom:12px;">More like this</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <sc-for list="{{ related }}" as="rel" hint-placeholder-count="3">
+            <button onClick="{{ rel.open }}" style="border:1px solid #ecdec7; background:#fffdf9; color:#6b5a3e; font-size:13px; font-weight:600; padding:9px 14px; border-radius:20px; cursor:pointer;">{{ rel.title }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CATS = {
+  Beaches: { color: '#2f8fa3', bg: '#dcedf0' },
+  Water: { color: '#3a7fc4', bg: '#dde6f5' },
+  Adventure: { color: '#b8842a', bg: '#f6ecd6' },
+  Nature: { color: '#4a8f4f', bg: '#e2f0e2' },
+  Culture: { color: '#9c5a86', bg: '#f4e3ef' },
+  'Food & Drink': { color: '#cf5a3f', bg: '#fbe0d8' },
+};
+
+const ARTICLES = [
+  { id: 'hana', title: 'Road to Hana Drive', category: 'Nature', location: 'Hana Highway', readTime: '6 min',
+    summary: 'A 64-mile coastal drive through rainforest, waterfalls, and one-lane bridges.',
+    overview: 'The Road to Hana winds along Maui\u2019s northeast coast past dozens of waterfalls, black-sand beaches, and bamboo forest. It\u2019s less a destination than a string of stops \u2014 pace yourself and pick a few favorites rather than trying to see everything.',
+    bestTime: 'Leave by 7 AM to beat tour traffic and catch the waterfalls before midday crowds arrive.',
+    tips: ['Fill your gas tank in Kahului \u2014 there are no stations past Paia.', 'Cell service drops for long stretches; download offline maps.', 'Allow a full day \u2014 the return drive takes just as long as the way out.'] },
+  { id: 'haleakala', title: 'Haleakal\u0101 Sunrise', category: 'Adventure', location: 'Haleakal\u0101 National Park', readTime: '5 min',
+    summary: 'Watch the sun rise above the clouds from a 10,000-ft volcanic summit.',
+    overview: 'Haleakal\u0101\u2019s summit sits above the cloud line, making sunrise here feel closer to a flight window than a hike. The park requires a separate sunrise reservation, booked apart from general admission.',
+    bestTime: 'Arrive 45 minutes before your reserved sunrise slot \u2014 parking fills fast and it\u2019s cold at altitude.',
+    tips: ['Reservations open 60 days in advance and sell out.', 'Temperatures can drop below 40\u00b0F \u2014 bring layers.', 'The drive up takes ~1.5 hours from Kihei or Wailea.'] },
+  { id: 'molokini', title: 'Snorkel at Molokini Crater', category: 'Water', location: 'Boat from Ma\u02bbalaea', readTime: '4 min',
+    summary: 'A crescent-shaped volcanic crater with some of the clearest water in Hawaii.',
+    overview: 'Molokini\u2019s partially submerged crater creates a natural, current-sheltered snorkeling basin with visibility often past 100 feet. Most boats combine it with a second stop along Maui\u2019s south coast.',
+    bestTime: 'Book the first morning departure \u2014 water clarity and calm seas are best before 10 AM.',
+    tips: ['Only accessible by boat \u2014 book a half-day tour in advance.', 'Reef-safe sunscreen is required by most operators.', 'Trips are frequently cancelled for surf \u2014 book with free rescheduling.'] },
+  { id: 'luau', title: 'Old Lahaina Lu\u0101u', category: 'Culture', location: 'Lahaina', readTime: '5 min',
+    summary: 'A traditional Hawaiian feast and hula performance on the west shore.',
+    overview: 'This lu\u0101u leans on cultural storytelling over spectacle \u2014 imu ceremony, live music, and hula spanning several eras of Hawaiian history, paired with a full Hawaiian-style buffet.',
+    bestTime: 'Sunset seatings (check-in ~5 PM) get the best light for photos and cooler evening air.',
+    tips: ['Book at least a few weeks ahead in peak season.', 'Open seating \u2014 arrive early for front rows.', 'Vegetarian plates available with advance notice.'] },
+  { id: 'iao', title: 'Iao Valley State Park', category: 'Nature', location: 'Wailuku', readTime: '3 min',
+    summary: 'A short rainforest walk to a dramatic 1,200-ft volcanic needle.',
+    overview: 'Iao Needle rises straight out of a lush valley just minutes from Wailuku. The main trail is paved and under a mile round trip, making it an easy add-on rather than a full excursion.',
+    bestTime: 'Weekday mornings are quietest; the valley clouds over most afternoons.',
+    tips: ['A Hawaii state parks parking reservation is required.', 'Trail is stroller- and wheelchair-friendly.', 'Pair with the nearby Wailuku town for lunch.'] },
+  { id: 'catamaran', title: 'Sunset Catamaran Cruise', category: 'Water', location: 'Ka\u02bbanapali', readTime: '4 min',
+    summary: 'An evening sail along the west shore with a shot at spotting turtles.',
+    overview: 'Two-hour catamaran cruises leave from Ka\u02bbanapali Beach most evenings, sailing parallel to the coast as the sun drops behind the boat. Most include one drink and light pupus.',
+    bestTime: 'Book the last departure of the day for sunset timing \u2014 check exact times seasonally.',
+    tips: ['Boards directly from the beach \u2014 no harbor walk required.', 'Winter sailings sometimes spot humpback whales.', 'Get there 20 minutes early for boarding.'] },
+  { id: 'bigbeach', title: 'Big Beach (Makena)', category: 'Beaches', location: 'Makena', readTime: '3 min',
+    summary: 'A wide, undeveloped stretch of sand with minimal crowds.',
+    overview: 'Makena State Park\u2019s \u201cBig Beach\u201d runs nearly a mile with no resorts in view \u2014 one of the last undeveloped beaches on this coast. Shore break can be strong, especially in summer swell.',
+    bestTime: 'Early morning for calm water and easy parking; afternoons bring bigger shore break.',
+    tips: ['Limited shade \u2014 bring your own umbrella.', 'A short walk over the cinder cone reaches Little Beach.', 'Lifeguards on duty during daylight hours only.'] },
+  { id: 'wailea', title: 'Wailea Beach Walk', category: 'Beaches', location: 'Wailea', readTime: '2 min',
+    summary: 'A paved 1.5-mile shoreline path connecting Wailea\u2019s resort beaches.',
+    overview: 'The path links a string of small, calm beaches past resort grounds and sculpture gardens \u2014 an easy way to beach-hop without moving the car.',
+    bestTime: 'Late afternoon for shade and cooler temperatures along the open stretches.',
+    tips: ['Public beach access points are marked along the path.', 'Fully paved and flat \u2014 good for strollers.', 'Ulua Beach (mid-path) has the best snorkeling.'] },
+  { id: 'market', title: 'Ono Farmers Market', category: 'Food & Drink', location: 'Kihei', readTime: '3 min',
+    summary: 'A small morning market for local fruit, banana bread, and coffee.',
+    overview: 'A compact, locally-run market with a rotating set of fruit stands, baked goods, and a couple of coffee carts \u2014 a good low-key stop before a beach morning.',
+    bestTime: 'Open mornings only, roughly 7 AM\u2013noon \u2014 go early for the best selection.',
+    tips: ['Cash is preferred by several vendors.', 'Try the apple bananas \u2014 a Maui-grown variety, smaller and sweeter.', 'Small lot \u2014 street parking fills up by mid-morning.'] },
+];
+
+class Component extends DCLogic {
+  state = { selectedCategory: 'All', search: '', openArticle: null };
+
+  categoryStyle(cat, active) {
+    if (cat === 'All') return active
+      ? { color: '#fff', bg: '#cf6a3d', borderColor: '#cf6a3d' }
+      : { color: '#6b5a3e', bg: '#fffdf9', borderColor: '#ecdec7' };
+    const base = CATS[cat];
+    return active
+      ? { color: '#fff', bg: base.color, borderColor: base.color }
+      : { color: base.color, bg: base.bg, borderColor: base.bg };
+  }
+
+  articleCard(a) {
+    const c = CATS[a.category];
+    return {
+      title: a.title, category: a.category, summary: a.summary, location: a.location, readTime: a.readTime,
+      color: c.color, bg: c.bg, stripeBg: `repeating-linear-gradient(45deg, ${c.bg}, ${c.bg} 8px, #fdf3e6 8px, #fdf3e6 16px)`,
+      open: () => this.setState({ openArticle: a.id }),
+    };
+  }
+
+  renderVals() {
+    const q = this.state.search.trim().toLowerCase();
+    const filtered = ARTICLES.filter((a) =>
+      (this.state.selectedCategory === 'All' || a.category === this.state.selectedCategory) &&
+      (!q || a.title.toLowerCase().includes(q)));
+
+    const categories = ['All', ...Object.keys(CATS)].map((cat) => {
+      const active = this.state.selectedCategory === cat;
+      const s = this.categoryStyle(cat, active);
+      return { label: cat, ...s, select: () => this.setState({ selectedCategory: cat }) };
+    });
+
+    const openId = this.state.openArticle;
+    const current = openId ? ARTICLES.find((a) => a.id === openId) : null;
+    const currentCard = current ? this.articleCard(current) : null;
+
+    const related = current
+      ? ARTICLES.filter((a) => a.category === current.category && a.id !== current.id).slice(0, 3)
+        .map((a) => ({ title: a.title, open: () => this.setState({ openArticle: a.id }) }))
+      : [];
+
+    return {
+      showLibrary: !openId,
+      showDetail: !!openId,
+      search: this.state.search,
+      onSearch: (e) => this.setState({ search: e.target.value }),
+      categories,
+      articles: filtered.map((a) => this.articleCard(a)),
+      noResults: filtered.length === 0,
+      current: currentCard,
+      closeArticle: () => this.setState({ openArticle: null }),
+      related,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+  background: #fbf3e9;
+}
+a {
+  color: #cf6a3d;
+}
+a:hover {
+  color: #ad5330;
+}
+* {
+  font-family: 'Inter', system-ui, sans-serif;
+  box-sizing: border-box;
+}
+.mono {
+  font-family: 'DM Mono', ui-monospace, monospace;
+}
+::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}
+input::placeholder {
+  color: #b3a583;
+}
+.back-btn:hover {
+  border-color: #cf6a3d;
+  color: #cf6a3d;
+}

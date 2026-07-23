@@ -1,0 +1,35 @@
+---
+import ContentLibrary from '../components/ContentLibrary';
+import { getAllAttractions } from '../lib/firestore';
+import { toArticleDetail } from '../lib/content';
+import { CATEGORIES, CATEGORY_ORDER } from '../lib/categories';
+import '../styles/global.css';
+
+const attractions = await getAllAttractions();
+const articles = attractions
+  .map(toArticleDetail)
+  .sort((a, b) => a.title.localeCompare(b.title));
+
+const categories = CATEGORY_ORDER.map((id) => ({ id, ...CATEGORIES[id] }));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TripLine · Things to do on Maui</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div style="min-height:100vh; display:flex; justify-content:center; padding:40px 16px;">
+      <div style="width:100%; max-width:980px;">
+        <ContentLibrary client:load articles={articles} categories={categories} />
+      </div>
+    </div>
+  </body>
+</html>

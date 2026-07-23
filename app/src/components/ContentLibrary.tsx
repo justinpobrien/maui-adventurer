@@ -54,13 +54,29 @@ function BackIcon() {
   );
 }
 
-function PhotoPlaceholder({ height, borderRadius, stripeBg }: { height: number; borderRadius?: number; stripeBg: string }) {
+function PhotoPlaceholder({
+  height,
+  borderRadius,
+  stripeBg,
+  imgSrc,
+  alt,
+}: {
+  height: number;
+  borderRadius?: number;
+  stripeBg: string;
+  imgSrc?: string;
+  alt?: string;
+}) {
+  // The striped background + "photo" label stay underneath and show while the
+  // image loads or if it's missing (onError hides a 404'd <img>).
   return (
     <div
       style={{
+        position: 'relative',
         height,
         borderRadius,
         background: stripeBg,
+        overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -69,6 +85,18 @@ function PhotoPlaceholder({ height, borderRadius, stripeBg }: { height: number; 
       <span className="mono" style={{ fontSize: borderRadius ? 12 : 11, color: '#9c8a6a' }}>
         photo
       </span>
+      {imgSrc && (
+        <img
+          src={imgSrc}
+          alt={alt ?? ''}
+          loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      )}
     </div>
   );
 }
@@ -120,7 +148,13 @@ export default function ContentLibrary({ articles, categories }: ContentLibraryP
         </button>
 
         <div style={{ marginBottom: 22 }}>
-          <PhotoPlaceholder height={220} borderRadius={18} stripeBg={current.stripeBg} />
+          <PhotoPlaceholder
+            height={220}
+            borderRadius={18}
+            stripeBg={current.stripeBg}
+            imgSrc={`/images/attractions/${current.slug}.webp`}
+            alt={current.title}
+          />
         </div>
 
         <span
@@ -262,7 +296,12 @@ export default function ContentLibrary({ articles, categories }: ContentLibraryP
               flexDirection: 'column',
             }}
           >
-            <PhotoPlaceholder height={140} stripeBg={art.stripeBg} />
+            <PhotoPlaceholder
+              height={140}
+              stripeBg={art.stripeBg}
+              imgSrc={`/images/attractions/${art.slug}-thumb.webp`}
+              alt={art.title}
+            />
             <div style={{ padding: '15px 16px 17px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span

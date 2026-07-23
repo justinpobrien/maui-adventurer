@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "sync-content": "node scripts/sync-content.mjs",
+    "generate-images": "node scripts/generate-images.mjs",
     "emulators": "firebase emulators:start --only firestore --project demo-maui-content"
   },
   "dependencies": {

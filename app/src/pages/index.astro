@@ -1,5 +1,5 @@
 ---
-import ContentLibrary from '../components/ContentLibrary';
+import App from '../components/App';
 import { getAllAttractions } from '../lib/firestore';
 import { toArticleDetail } from '../lib/content';
 import { CATEGORIES, CATEGORY_ORDER } from '../lib/categories';
@@ -28,7 +28,7 @@ const categories = CATEGORY_ORDER.map((id) => ({ id, ...CATEGORIES[id] }));
   <body>
     <div style="min-height:100vh; display:flex; justify-content:center; padding:40px 16px;">
       <div style="width:100%; max-width:980px;">
-        <ContentLibrary client:load articles={articles} categories={categories} />
+        <App client:load articles={articles} categories={categories} />
       </div>
     </div>
   </body>

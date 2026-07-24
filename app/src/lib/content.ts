@@ -19,6 +19,11 @@ export interface ArticleCard {
   location: string;
   readTime: string;
   stripeBg: string;
+  // Scheduling fields the itinerary builder needs to fit an attraction into a
+  // free-time gap and rank recommendations by proximity.
+  minTimeMinutes: number;
+  regionId: string;
+  coordinates: [number, number] | null;
 }
 
 export interface ArticleDetail extends ArticleCard {
@@ -85,6 +90,9 @@ export function toArticleCard(a: Attraction): ArticleCard {
     location: REGION_LABELS[a.region],
     readTime: readTimeFor(a.body),
     stripeBg: stripeBgFor(style.bg),
+    minTimeMinutes: a.min_time_minutes,
+    regionId: a.region,
+    coordinates: Array.isArray(a.coordinates) ? a.coordinates : null,
   };
 }
 

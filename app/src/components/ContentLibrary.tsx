@@ -12,9 +12,77 @@ export interface CategoryOption {
 interface ContentLibraryProps {
   articles: ArticleDetail[];
   categories: CategoryOption[];
+  wishlist?: Set<string>;
+  onToggleWishlist?: (slug: string) => void;
 }
 
 const ALL = 'All';
+
+function HeartIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? '#cf6a3d' : 'none'}>
+      <path
+        d="M12 20s-6.5-4.35-9-8.5C1.5 8.5 3 5.5 6 5.5c1.9 0 3.2 1.1 4 2.3.8-1.2 2.1-2.3 4-2.3 3 0 4.5 3 3 6-2.5 4.15-9 8.5-9 8.5Z"
+        stroke={filled ? '#cf6a3d' : '#9c8a6a'}
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function WishlistButton({
+  saved,
+  onClick,
+  overlay,
+}: {
+  saved: boolean;
+  onClick: (e: React.MouseEvent) => void;
+  overlay?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={saved ? 'Remove from wishlist' : 'Add to wishlist'}
+      title={saved ? 'Saved to wishlist' : 'Save to wishlist'}
+      style={
+        overlay
+          ? {
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              border: '1px solid #ecdec7',
+              background: 'rgba(255,253,249,0.92)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              padding: 0,
+              boxShadow: '0 1px 3px rgba(60,40,15,0.12)',
+            }
+          : {
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              border: `1px solid ${saved ? '#cf6a3d' : '#ecdec7'}`,
+              background: saved ? '#fbe0d8' : '#fffdf9',
+              color: saved ? '#ad5330' : '#6b5a3e',
+              fontSize: 13,
+              fontWeight: 600,
+              padding: '8px 14px',
+              borderRadius: 10,
+              cursor: 'pointer',
+            }
+      }
+    >
+      <HeartIcon filled={saved} />
+      {!overlay && (saved ? 'Saved' : 'Save')}
+    </button>
+  );
+}
 
 function chipStyle(color: string, bg: string, borderColor: string): CSSProperties {
   return {
@@ -101,7 +169,8 @@ function PhotoPlaceholder({
   );
 }
 
-export default function ContentLibrary({ articles, categories }: ContentLibraryProps) {
+export default function ContentLibrary({ articles, categories, wishlist, onToggleWishlist }: ContentLibraryProps) {
+  const isSaved = (slug: string) => Boolean(wishlist?.has(slug));
   const [selectedCategory, setSelectedCategory] = useState<string>(ALL);
   const [search, setSearch] = useState('');
   const [openSlug, setOpenSlug] = useState<string | null>(null);
@@ -125,27 +194,31 @@ export default function ContentLibrary({ articles, categories }: ContentLibraryP
   if (current) {
     return (
       <div>
-        <button
-          className="back-btn"
-          onClick={() => setOpenSlug(null)}
-          style={{
-            border: '1px solid #ecdec7',
-            background: '#fffdf9',
-            color: '#6b5a3e',
-            fontSize: 13,
-            fontWeight: 600,
-            padding: '8px 14px',
-            borderRadius: 10,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            marginBottom: 20,
-          }}
-        >
-          <BackIcon />
-          Back to library
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 20 }}>
+          <button
+            className="back-btn"
+            onClick={() => setOpenSlug(null)}
+            style={{
+              border: '1px solid #ecdec7',
+              background: '#fffdf9',
+              color: '#6b5a3e',
+              fontSize: 13,
+              fontWeight: 600,
+              padding: '8px 14px',
+              borderRadius: 10,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <BackIcon />
+            Back to library
+          </button>
+          {onToggleWishlist && (
+            <WishlistButton saved={isSaved(current.slug)} onClick={() => onToggleWishlist(current.slug)} />
+          )}
+        </div>
 
         <div style={{ marginBottom: 22 }}>
           <PhotoPlaceholder
@@ -296,12 +369,24 @@ export default function ContentLibrary({ articles, categories }: ContentLibraryP
               flexDirection: 'column',
             }}
           >
-            <PhotoPlaceholder
-              height={140}
-              stripeBg={art.stripeBg}
-              imgSrc={`/images/attractions/${art.slug}-thumb.webp`}
-              alt={art.title}
-            />
+            <div style={{ position: 'relative' }}>
+              <PhotoPlaceholder
+                height={140}
+                stripeBg={art.stripeBg}
+                imgSrc={`/images/attractions/${art.slug}-thumb.webp`}
+                alt={art.title}
+              />
+              {onToggleWishlist && (
+                <WishlistButton
+                  saved={isSaved(art.slug)}
+                  overlay
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleWishlist(art.slug);
+                  }}
+                />
+              )}
+            </div>
             <div style={{ padding: '15px 16px 17px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span
